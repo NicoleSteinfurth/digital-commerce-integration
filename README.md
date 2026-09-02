@@ -20,27 +20,22 @@ The original production application connects checkout, payment processing, webho
 
 ## Architecture
 
-```text
-Customer
-   |
-   v
-Stripe Checkout
-   |
-   | checkout.session.completed
-   v
-Signed Webhook Endpoint
-   |
-   v
-FulfillmentService
-   |-------------------|--------------------|------------------|
-   v                   v                    v                  v
-MySQL / MariaDB    PDF Invoice         Brevo API          SMTP Email
-   |
-   v
-Secure Download Token
-   |
-   v
-Protected Product Download
+```mermaid
+flowchart TD
+    A[Customer] --> B[Stripe Checkout]
+    B -->|checkout.session.completed| C[Signed Webhook Endpoint]
+    C --> D[Signature Validation]
+    D --> E[Idempotency Check]
+    E --> F[FulfillmentService]
+
+    F --> G[(MySQL / MariaDB)]
+    F --> H[PDF Invoice Generation]
+    F --> I[Secure Download Token]
+    G --> J[Order / Customer / Invoice Metadata]
+    I --> K[Protected Product Download]
+
+    F --> L[Brevo API]
+    F --> M[SMTP Transactional Email]
 ```
 
 ## Important integration decisions
